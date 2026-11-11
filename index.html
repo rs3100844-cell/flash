@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pankaj Cards AI</title>
+<style>
+:root{--bg:#020617;--panel:#0f172a;--line:#1e293b;--a4:#fbbf24;--a5:#f59e0b;--tx:#f8fafc;--mut:#94a3b8}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 15% 0,#451a03 0,transparent 45%),var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:rgba(2,6,23,.85);backdrop-filter:blur(10px);border-bottom:2px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:clamp(1.1rem,4.5vw,1.6rem)}
+.logo b{color:var(--a4)} .logo i{font-style:normal;display:inline-block;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-8deg)}}
+main{max-width:1100px;margin:0 auto;padding:14px}
+.tabs{display:flex;gap:8px;margin:6px 0 16px;background:var(--panel);padding:6px;border-radius:18px;border:2px solid var(--line)}
+.tab{flex:1;min-height:48px;border:0;border-radius:13px;background:transparent;color:var(--mut);font-weight:800;font-size:clamp(.9rem,3.6vw,1.05rem);cursor:pointer;transition:.2s}
+.tab.on{background:linear-gradient(135deg,var(--a4),var(--a5));color:#1c1303;box-shadow:0 4px 16px rgba(245,158,11,.35)}
+.btn{min-height:48px;padding:0 18px;border:0;border-radius:14px;font-weight:800;font-size:1rem;cursor:pointer;transition:transform .12s,filter .2s;display:inline-flex;align-items:center;justify-content:center;gap:8px;color:#fff;background:var(--line)}
+.btn:hover{filter:brightness(1.12)} .btn:active{transform:scale(.94)}
+.y{background:linear-gradient(135deg,var(--a4),var(--a5));color:#1c1303}
+.red{background:#ef4444} .green{background:#22c55e;color:#04210f}
+.ico{width:48px;padding:0;font-size:1.3rem}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:16px}
+h2{font-size:1.15rem;margin-bottom:10px;color:var(--a4)}
+.grid{display:grid;gap:16px} @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+textarea{width:100%;min-height:280px;resize:vertical;background:#0b1224;color:var(--tx);border:2px solid var(--line);border-radius:16px;padding:14px;font:inherit;font-size:1rem;line-height:1.5;outline:0;margin-bottom:12px}
+textarea:focus{border-color:var(--a4);box-shadow:0 0 0 4px rgba(251,191,36,.15)}
+.count{display:inline-block;background:var(--a4);color:#1c1303;font-weight:900;border-radius:99px;padding:2px 14px;margin-left:6px}
+.list{max-height:430px;overflow:auto;display:grid;gap:10px;margin:12px 0}
+.item{background:#0b1224;border-left:5px solid var(--a4);border-radius:12px;padding:10px 12px;animation:in .3s both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.item small{color:var(--a4);font-weight:800} .item p{color:var(--mut);margin-top:4px;font-size:.95rem}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}.empty big{font-size:3rem;display:block}
+.hide{display:none!important}
+.stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.chip{background:var(--panel);border:2px solid var(--line);border-radius:99px;padding:6px 14px;font-weight:800;font-size:.9rem}
+.bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;max-width:640px;margin:0 auto 18px}
+.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--a4),#22c55e);transition:width .4s}
+.scene{perspective:1200px;max-width:640px;margin:0 auto;height:clamp(270px,50dvh,400px);cursor:pointer;touch-action:pan-y}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1.15)}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:28px;display:flex;align-items:center;justify-content:center;text-align:center;padding:54px 22px 22px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.front{background:linear-gradient(135deg,var(--a4),var(--a5));color:#1c1303}
+.back{background:var(--panel);border:3px solid var(--a4);transform:rotateY(180deg)}
+.txt{max-height:100%;overflow:auto;font-weight:800;font-size:clamp(1.1rem,4.6vw,1.8rem);line-height:1.35;word-break:break-word}
+.tag{position:absolute;top:16px;left:20px;font-size:.75rem;font-weight:900;letter-spacing:.12em;opacity:.7}
+.spk{position:absolute;top:8px;right:10px;width:46px;height:46px;border-radius:50%;border:0;font-size:1.3rem;cursor:pointer;background:rgba(0,0,0,.18);color:inherit}
+.back .spk{background:rgba(251,191,36,.2)}
+.ctrl{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:640px;margin:18px auto 8px}
+.ctrl .flip{grid-column:1/-1}
+.hint{text-align:center;color:var(--mut);font-size:.85rem}
+@media(hover:none){.hint.kb{display:none}}
+.good{animation:good .4s}.bad{animation:bad .4s}
+@keyframes good{40%{transform:scale(1.04) rotate(1.5deg)}}
+@keyframes bad{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.done{max-width:640px;margin:0 auto;text-align:center}.done big{font-size:4rem;display:block;animation:bob 1.2s infinite}
+.pct{font-size:3rem;font-weight:900;color:var(--a4)}
+.conf{position:fixed;top:-30px;z-index:50;pointer-events:none;font-size:1.6rem;animation:fall 2.2s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.6}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--a4);color:#1c1303;font-weight:800;padding:10px 20px;border-radius:99px;z-index:60;transition:opacity .3s;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i>🟡</i><span>Pankaj <b>Cards</b> AI</span></div>
+  <button class="btn ico" id="mute" title="Mute / Unmute">🔊</button>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab on" data-tab="gen">✨ Generator</button>
+    <button class="tab" data-tab="study">🧠 Study Mode</button>
+  </div>
+
+  <!-- GENERATOR -->
+  <section id="gen" class="grid">
+    <div class="panel">
+      <h2>📝 Paste your notes</h2>
+      <textarea id="src" placeholder="Paste notes here...&#10;&#10;Q: What is photosynthesis?&#10;A: How plants make food from light.&#10;&#10;Or use: Term: Definition, numbered lists, bullets..."></textarea>
+      <div class="row">
+        <button class="btn y" id="sample">📋 Load Sample Template</button>
+        <button class="btn" id="clear">🗑️ Clear</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>👀 Live Preview <span class="count" id="cnt">0</span></h2>
+      <div class="list" id="list"></div>
+      <div class="row">
+        <button class="btn y" id="go">🚀 Start Studying</button>
+        <button class="btn" id="csv">⬇️ Anki CSV</button>
+        <button class="btn" id="json">⬇️ JSON</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STUDY -->
+  <section id="study" class="hide">
+    <div id="sNone" class="panel empty hide"><big>📭</big><p style="margin:8px 0 16px">No cards yet! Add some notes in the Generator first.</p><button class="btn y" onclick="tab('gen')">Go to Generator</button></div>
+    <div id="sMain">
+      <div class="stats">
+        <span class="chip" id="stPos">Card 0/0</span>
+        <span class="chip" style="color:#4ade80" id="stKnown">✅ 0</span>
+        <span class="chip" style="color:#f87171" id="stLearn">🔁 0</span>
+        <span class="chip" style="color:var(--a4)" id="stPct">🏆 0% mastery</span>
+      </div>
+      <div class="bar"><div id="bar"></div></div>
+      <div class="scene" id="scene">
+        <div class="card" id="card">
+          <div class="face front"><span class="tag">QUESTION</span><button class="spk" id="spkQ" title="Read aloud">🔈</button><div class="txt" id="qTxt"></div></div>
+          <div class="face back"><span class="tag" style="color:var(--a4)">ANSWER</span><button class="spk" id="spkA" title="Read aloud">🔈</button><div class="txt" id="aTxt"></div></div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <button class="btn red" id="bad">🔁 Still Learning</button>
+        <button class="btn green" id="good">✅ Got It!</button>
+        <button class="btn y flip" id="flipBtn">🔄 Flip Card</button>
+      </div>
+      <p class="hint kb">⌨️ Space = flip · ← Still Learning · → Got It!</p>
+      <p class="hint">👆 Tap the card to flip · swipe left/right to grade</p>
+    </div>
+    <div id="sDone" class="panel done hide">
+      <big>🎉</big><h2 style="font-size:1.6rem">Deck complete!</h2>
+      <div class="pct" id="finPct">0%</div>
+      <p style="color:var(--mut);margin:6px 0 16px" id="finTxt"></p>
+      <div class="row" style="justify-content:center">
+        <button class="btn red" id="redo">🔁 Review missed</button>
+        <button class="btn y" id="restart">🔀 Shuffle &amp; restart</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast hide" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cards = [], deck = [], idx = 0, flipped = false, known = 0, learn = 0, missed = [], muted = false, lock = false, curTab = 'gen';
+
+/* ---------- SFX (Web Audio synth) ---------- */
+let ac;
+function tone(f, d, type = 'sine', v = .15, delay = 0) {
+  if (muted) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + delay;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + d);
+  } catch (e) {}
+}
+const sfx = {
+  click: () => tone(680, .07, 'square', .05),
+  flip: () => { tone(300, .07, 'triangle'); tone(520, .1, 'triangle', .12, .06); },
+  good: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'sine', .15, i * .08)),
+  bad: () => { tone(220, .18, 'sawtooth', .07); tone(150, .28, 'sawtooth', .07, .13); },
+  win: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .25, 'triangle', .15, i * .1))
+};
+function speak(t) {
+  if (muted) return toast('🔇 Unmute to hear audio');
+  if (!('speechSynthesis' in window)) return toast('Speech not supported here');
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(t); u.rate = .95; speechSynthesis.speak(u);
+}
+function toast(m) {
+  const t = $('#toast'); t.textContent = m; t.classList.remove('hide'); t.style.opacity = 1;
+  clearTimeout(toast.id); toast.id = setTimeout(() => { t.style.opacity = 0; setTimeout(() => t.classList.add('hide'), 300); }, 1800);
+}
+
+/* ---------- PARSER ---------- */
+function parseStrict(text) {
+  const out = []; let cur = null, mode = 'q';
+  const Q = /^Q\d*\s*(?::|\.|\)|-\s)\s*(.*)$/i, A = /^A\d*\s*(?::|\.|\)|-\s)\s*(.*)$/i;
+  for (const raw of text.split('\n')) {
+    const l = raw.trim(); let m;
+    if ((m = l.match(Q))) { if (cur && cur.q && cur.a) out.push(cur); cur = { q: m[1], a: '' }; mode = 'q'; }
+    else if (cur && (m = l.match(A))) { cur.a = m[1]; mode = 'a'; }
+    else if (cur && l) cur[mode] += (cur[mode] ? '\n' : '') + l;
+  }
+  if (cur && cur.q && cur.a) out.push(cur);
+  return out.map(c => ({ q: c.q.trim(), a: c.a.trim() })).filter(c => c.q && c.a);
+}
+function parseAuto(text) {
+  const out = [], lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  const item = /^(?:\d+[.)]|[-*•–])\s+/, clean = s => s.replace(item, '').trim();
+  for (let i = 0; i < lines.length; i++) {
+    const l = clean(lines[i]); let m;
+    if ((m = l.match(/^(.+?\?)\s+(.+)$/))) { out.push({ q: m[1], a: m[2] }); continue; }
+    if (/\?$/.test(l)) {
+      const nx = lines[i + 1];
+      if (nx && !/^\d+[.)]\s/.test(nx) && !/\?$/.test(clean(nx))) { out.push({ q: l, a: clean(nx) }); i++; }
+      continue;
+    }
+    if ((m = l.match(/^(.{1,90}?)\s*(?::|\s[—–-]\s|=)\s*(.+)$/))) { out.push({ q: m[1], a: m[2] }); continue; }
+    (l.match(/[^.!]+[.!]?/g) || []).forEach(s => {
+      s = s.trim();
+      const k = s.match(/^(.{2,60}?)\s+(is|are|was|were|means|refers to)\s+.+$/i);
+      if (k) out.push({ q: 'What ' + (/^(are|were|was)$/i.test(k[2]) ? k[2].toLowerCase() : 'is') + ' ' + k[1] + '?', a: s });
+    });
+  }
+  return out;
+}
+const parse = t => { t = t.replace(/\r/g, ''); const s = parseStrict(t); return s.length ? s : parseAuto(t); };
+
+/* ---------- GENERATOR ---------- */
+const SAMPLE = `Q: What is the powerhouse of the cell?
+A: The mitochondria, which produces ATP energy.
+
+Q: What gas do plants absorb during photosynthesis?
+A: Carbon dioxide (CO2).
+
+Q: Who wrote "Romeo and Juliet"?
+A: William Shakespeare.
+
+Q: What is the capital of Japan?
+A: Tokyo.
+
+Q: What is 12 x 12?
+A: 144.`;
+function refresh() {
+  cards = parse($('#src').value);
+  $('#cnt').textContent = cards.length;
+  $('#list').innerHTML = cards.length
+    ? cards.map((c, i) => `<div class="item" style="animation-delay:${Math.min(i, 10) * 30}ms"><small>#${i + 1} ❓</small> ${esc(c.q)}<p>💡 ${esc(c.a)}</p></div>`).join('')
+    : '<div class="empty"><big>🪄</big>Paste notes or load the sample to see cards appear!</div>';
+  try { localStorage.setItem('yc_src', $('#src').value); } catch (e) {}
+}
+function download(name, mime, data) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data], { type: mime }));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+function needCards() { if (!cards.length) { toast('⚠️ No cards to use yet'); sfx.bad(); return false; } return true; }
+$('#src').addEventListener('input', refresh);
+$('#sample').onclick = () => { $('#src').value = SAMPLE; refresh(); sfx.good(); toast('Sample loaded! 🎉'); };
+$('#clear').onclick = () => { $('#src').value = ''; refresh(); sfx.click(); };
+$('#csv').onclick = () => {
+  if (!needCards()) return; sfx.click();
+  const q = s => '"' + s.replace(/"/g, '""') + '"';
+  download('yellow-cards-anki.csv', 'text/csv;charset=utf-8', '\ufeff' + cards.map(c => q(c.q) + ',' + q(c.a)).join('\r\n'));
+  toast('Anki CSV saved ✅');
+};
+$('#json').onclick = () => {
+  if (!needCards()) return; sfx.click();
+  download('yellow-cards-deck.json', 'application/json', JSON.stringify({ app: 'Yellow Cards AI', exported: new Date().toISOString(), cards }, null, 2));
+  toast('JSON backup saved ✅');
+};
+$('#go').onclick = () => { if (needCards()) { start(cards, false); tab('study'); } };
+
+/* ---------- TABS ---------- */
+function tab(t) {
+  curTab = t; sfx.click();
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  $('#gen').classList.toggle('hide', t !== 'gen');
+  $('#study').classList.toggle('hide', t !== 'study');
+  if (t === 'study' && !deck.length) { if (cards.length) start(cards, false); else showStudy('none'); }
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => tab(b.dataset.tab));
+function showStudy(w) {
+  $('#sNone').classList.toggle('hide', w !== 'none');
+  $('#sMain').classList.toggle('hide', w !== 'main');
+  $('#sDone').classList.toggle('hide', w !== 'done');
+}
+
+/* ---------- STUDY ---------- */
+function start(list, shuffle) {
+  deck = list.slice();
+  if (shuffle) for (let i = deck.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  idx = 0; known = 0; learn = 0; missed = []; flipped = false; lock = false;
+  $('#card').classList.remove('flipped'); showStudy('main'); render();
+}
+function stats() {
+  const n = deck.length, pct = n ? Math.round(known / n * 100) : 0;
+  $('#stPos').textContent = `Card ${Math.min(idx + 1, n)}/${n}`;
+  $('#stKnown').textContent = '✅ ' + known; $('#stLearn').textContent = '🔁 ' + learn;
+  $('#stPct').textContent = `🏆 ${pct}% mastery`;
+  $('#bar').style.width = (n ? idx / n * 100 : 0) + '%';
+  return pct;
+}
+function render() {
+  if (idx >= deck.length) return finish();
+  $('#qTxt').textContent = deck[idx].q; $('#aTxt').textContent = deck[idx].a; stats();
+}
+function flip() {
+  if (!deck.length || idx >= deck.length || lock) return;
+  flipped = !flipped; $('#card').classList.toggle('flipped', flipped); sfx.flip();
+}
+function grade(ok) {
+  if (!deck.length || idx >= deck.length || lock) return;
+  lock = true;
+  if (ok) { known++; sfx.good(); } else { learn++; missed.push(deck[idx]); sfx.bad(); }
+  const sc = $('#scene'); sc.classList.remove('good', 'bad'); void sc.offsetWidth; sc.classList.add(ok ? 'good' : 'bad');
+  idx++; stats();
+  if (flipped) { flipped = false; $('#card').classList.remove('flipped'); }
+  setTimeout(() => { render(); lock = false; }, flipped === false ? 320 : 0);
+}
+function finish() {
+  const pct = stats(); $('#bar').style.width = '100%';
+  $('#finPct').textContent = pct + '%';
+  $('#finTxt').textContent = `You knew ${known} of ${deck.length} cards.` + (missed.length ? ' Review the missed ones!' : ' Perfect run! 🌟');
+  $('#redo').classList.toggle('hide', !missed.length);
+  showStudy('done'); sfx.win(); confetti();
+}
+function confetti() {
+  const e = ['🟡', '⭐', '✨', '🎉', '🍋'];
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement('span'); s.className = 'conf'; s.textContent = e[i % e.length];
+    s.style.left = Math.random() * 100 + 'vw'; s.style.animationDelay = Math.random() * .6 + 's';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 3000);
+  }
+}
+$('#scene').onclick = e => { if (!e.target.closest('.spk')) flip(); };
+$('#flipBtn').onclick = flip;
+$('#good').onclick = () => grade(true);
+$('#bad').onclick = () => grade(false);
+$('#spkQ').onclick = e => { e.stopPropagation(); speak(deck[idx] && deck[idx].q); };
+$('#spkA').onclick = e => { e.stopPropagation(); speak(deck[idx] && deck[idx].a); };
+$('#restart').onclick = () => { sfx.click(); start(cards.length ? cards : deck, true); };
+$('#redo').onclick = () => { sfx.click(); start(missed, true); };
+$('#mute').onclick = () => {
+  muted = !muted; $('#mute').textContent = muted ? '🔇' : '🔊';
+  if (muted && 'speechSynthesis' in window) speechSynthesis.cancel(); else sfx.click();
+};
+
+/* keyboard */
+document.addEventListener('keydown', e => {
+  if (curTab !== 'study' || /^(TEXTAREA|INPUT)$/.test(e.target.tagName)) return;
+  if (e.code === 'Space') { e.preventDefault(); flip(); }
+  else if (e.key === 'ArrowRight') grade(true);
+  else if (e.key === 'ArrowLeft') grade(false);
+});
+document.addEventListener('click', e => { const b = e.target.closest('button'); if (b) b.blur(); });
+
+/* swipe */
+let tx = 0;
+$('#scene').addEventListener('touchstart', e => tx = e.changedTouches[0].clientX, { passive: true });
+$('#scene').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 80) grade(dx > 0);
+}, { passive: true });
+
+/* init */
+try { $('#src').value = localStorage.getItem('yc_src') || ''; } catch (e) {}
+refresh();
+</script>
+</body>
+</html>
